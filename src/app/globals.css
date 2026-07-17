@@ -23,3 +23,5 @@ button { cursor:pointer; }
 
 /* Yönetim formlarındaki tüm alanlar aynı etkileşim ve görünüm dilini kullanır. */
 .form-grid textarea,.form-grid select{width:100%;border:1px solid #ded7e1;background:#fff;border-radius:11px;padding:13px 14px;outline:none;font:inherit;color:#2c2632}.form-grid textarea{min-height:100px;resize:vertical}.form-grid textarea:focus,.form-grid select:focus{border-color:#8756a0;box-shadow:0 0 0 4px rgba(135,86,160,.11)}.panel-sidebar nav a{cursor:pointer}.product-row{grid-template-columns:45px minmax(160px,1fr) 90px 90px minmax(72px,auto)}.tenant-section footer{display:flex;justify-content:flex-end;margin-top:24px}
+.logout-action{margin:10px 12px 0;border:1px solid #4b3d53;border-radius:9px;background:transparent;color:#d8cde0;padding:10px;text-align:left;font-weight:800;font-size:12px}.logout-action:hover{background:#3c3046;color:#fff}
+.account-card{width:calc(100% - 24px);border-left:0;border-right:0;border-bottom:0;border-radius:0;background:transparent;color:#e9e1ea;text-align:left;cursor:pointer}.account-card.is-active,.account-card:hover{background:#3c3046;border-radius:10px}

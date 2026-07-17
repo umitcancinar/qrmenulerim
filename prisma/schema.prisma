@@ -1,0 +1,98 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  SUPERADMIN
+  OWNER
+  MANAGER
+}
+
+enum TenantStatus {
+  ACTIVE
+  SUSPENDED
+  TRIAL
+}
+
+model Tenant {
+  id          String       @id @default(cuid())
+  name        String
+  slug        String       @unique
+  status      TenantStatus @default(TRIAL)
+  logoUrl     String?
+  coverUrl    String?
+  phone       String?
+  address     String?
+  description String?
+  theme       Json         @default("{}")
+  settings    Json         @default("{}")
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  users      User[]
+  categories MenuCategory[]
+  products   Product[]
+
+  @@index([status])
+}
+
+model User {
+  id           String   @id @default(cuid())
+  tenantId     String?
+  username     String   @unique
+  passwordHash String
+  displayName  String
+  role         UserRole @default(OWNER)
+  isActive     Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  tenant Tenant? @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId])
+}
+
+model MenuCategory {
+  id        String   @id @default(cuid())
+  tenantId  String
+  name      String
+  description String?
+  imageUrl  String?
+  sortOrder Int      @default(0)
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  products Product[]
+
+  @@index([tenantId, sortOrder])
+}
+
+model Product {
+  id            String   @id @default(cuid())
+  tenantId      String
+  categoryId    String
+  name          String
+  description   String?
+  imageUrl      String?
+  price         Decimal  @db.Decimal(10, 2)
+  preparationMin Int?
+  badges        Json     @default("[]")
+  allergens     Json     @default("[]")
+  isAvailable   Boolean  @default(true)
+  isFeatured    Boolean  @default(false)
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  tenant   Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  category MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+
+  @@index([tenantId, categoryId, sortOrder])
+}

@@ -1,0 +1,5 @@
+import Link from 'next/link';
+
+export default function HomePage() {
+  return <main className="auth-page"><section className="auth-aside"><div className="brand-mark">QM</div><span className="eyebrow">QRMENÜLERİM · DİJİTAL MENÜ</span><h1>Menünüz,<br /><i>markanızın</i> sahnesi.</h1><p>Her işletme için özel bağlantı, güçlü marka kimliği ve misafirlerin severek kullanacağı kusursuz mobil deneyim.</p></section><section className="auth-form-wrap"><div className="auth-card"><span className="eyebrow">QRMENÜLERİM</span><h2>İyi menü,<br />ilk bakışta etkiler.</h2><p>MİRA için hazırlanan canlı QR menü deneyimini aç; arama, filtre, favoriler, ürün detayları ve tema seçeneklerini doğrudan dene.</p><Link className="primary-action" style={{ display: 'inline-block', textDecoration: 'none', marginTop: 12 }} href="/mira">Canlı menüyü incele</Link><Link className="secondary-action" style={{ display: 'inline-block', textDecoration: 'none', marginTop: 12, marginLeft: 8 }} href="/login">Panele giriş</Link></div></section></main>;
+}

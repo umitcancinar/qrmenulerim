@@ -21,6 +21,10 @@ npm start
 
 Node.js 20 veya daha yeni bir sürüm önerilir. Üretimde `.env.example` temel alınarak gerçek ortam değişkenleri tanımlanmalıdır; `.env` dosyaları repoya eklenmez.
 
+### cPanel Node.js App
+
+Uygulama kökünde `npm ci` ve `npm run build` çalıştırın. cPanel Application Manager için başlangıç dosyası `app.js` seçilmelidir.
+
 ## Kontroller
 
 ```bash

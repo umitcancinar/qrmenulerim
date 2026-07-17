@@ -81,10 +81,14 @@ model Product {
   name          String
   description   String?
   imageUrl      String?
+  kicker        String?
   price         Decimal  @db.Decimal(10, 2)
   preparationMin Int?
+  calories      Int?
   badges        Json     @default("[]")
   allergens     Json     @default("[]")
+  ingredients   Json     @default("[]")
+  portions      Json     @default("[]")
   isAvailable   Boolean  @default(true)
   isFeatured    Boolean  @default(false)
   sortOrder     Int      @default(0)

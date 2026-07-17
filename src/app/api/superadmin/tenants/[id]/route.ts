@@ -13,6 +13,13 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
   const tenant = await db.tenant.findUnique({ where: { id }, include: { users: { where: { role: 'OWNER' }, take: 1 } } });
   if (!tenant || !tenant.users[0]) return NextResponse.json({ error: 'TENANT_NOT_FOUND' }, { status: 404 });
   if (parsed.data.username) { const used = await db.user.findFirst({ where: { username: parsed.data.username, NOT: { id: tenant.users[0].id } } }); if (used) return NextResponse.json({ error: 'USERNAME_ALREADY_USED' }, { status: 409 }); }
-  const updated = await db.$transaction(async (tx: any) => { const changedTenant = await tx.tenant.update({ where: { id }, data: { name: parsed.data.name, status: parsed.data.status } }); const owner = await tx.user.update({ where: { id: tenant.users[0].id }, data: { displayName: parsed.data.ownerName, username: parsed.data.username, ...(parsed.data.password ? { passwordHash: await hashPassword(parsed.data.password) } : {}) }, select: { id: true, displayName: true, username: true, role: true, isActive: true } }); return { ...changedTenant, owner }; });
+  await db.$transaction(async (tx: any) => {
+    await tx.tenant.update({ where: { id }, data: { name: parsed.data.name, status: parsed.data.status } });
+    await tx.user.update({ where: { id: tenant.users[0].id }, data: { displayName: parsed.data.ownerName, username: parsed.data.username, ...(parsed.data.password ? { passwordHash: await hashPassword(parsed.data.password) } : {}) } });
+  });
+  const updated = await db.tenant.findUnique({
+    where: { id },
+    include: { users: { select: { id: true, displayName: true, username: true, role: true, isActive: true } }, _count: { select: { products: true, categories: true } } },
+  });
   return NextResponse.json({ data: updated });
 }

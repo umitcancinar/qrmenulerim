@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { currentSession, unauthorized } from '@/lib/guards';
 
-const schema = z.object({ description: z.string().max(800).optional(), coverUrl: z.string().url().optional().or(z.literal('')), phone: z.string().max(40).optional(), address: z.string().max(240).optional(), eyebrow: z.string().max(80).optional(), tagline: z.string().max(160).optional(), instagram: z.string().max(80).optional(), openingHours: z.string().max(80).optional(), averageWait: z.string().max(80).optional(), announcement: z.string().max(240).optional() });
+const schema = z.object({ description: z.string().max(800).optional(), coverUrl: z.string().url().optional().or(z.literal('')), phone: z.string().max(40).optional(), address: z.string().max(240).optional(), eyebrow: z.string().max(80).optional(), tagline: z.string().max(160).optional(), instagram: z.string().max(80).optional(), openingHours: z.string().max(80).optional(), averageWait: z.string().max(80).optional(), announcement: z.string().max(240).optional(), menuApiUrl: z.string().url().optional().or(z.literal('')), menuApiEnabled: z.boolean().optional() });
 
 export async function PATCH(request: Request) {
   const session = await currentSession(); if (!session?.tenantId || !['OWNER', 'MANAGER'].includes(session.role)) return unauthorized();

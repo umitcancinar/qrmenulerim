@@ -50,6 +50,17 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
   }, [selected, infoOpen]);
 
   useEffect(() => {
+    if (!selected && !infoOpen) return;
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key !== 'Escape') return;
+      setSelected(null);
+      setInfoOpen(false);
+    };
+    document.addEventListener('keydown', closeOnEscape);
+    return () => document.removeEventListener('keydown', closeOnEscape);
+  }, [selected, infoOpen]);
+
+  useEffect(() => {
     if (!toast) return;
     const timer = window.setTimeout(() => setToast(''), 2200);
     return () => window.clearTimeout(timer);
@@ -150,13 +161,16 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
           <button className={styles.heroInfo} onClick={() => setInfoOpen(true)}>
             <Icon name="info" /><span>Mekân bilgileri</span><Icon name="chevron" />
           </button>
+          <button className={styles.heroExplore} onClick={() => document.getElementById('menu-content')?.scrollIntoView({ behavior: 'smooth' })}>
+            <span><small>MENÜYE GEÇ</small><strong>Lezzetleri keşfet</strong></span><b>↓</b>
+          </button>
         </header>
 
         <div className={styles.announcement}>
           <span>DUYURU</span><p>{menu.announcement}</p><button onClick={() => chooseCategory('favorites')}>Öne çıkanlar <Icon name="chevron" /></button>
         </div>
 
-        <section className={styles.content}>
+        <section className={styles.content} id="menu-content">
           <div className={styles.discovery}>
             <label className={styles.search}>
               <Icon name="search" />

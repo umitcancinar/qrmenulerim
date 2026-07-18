@@ -225,7 +225,7 @@ export default async function HomePage() {
       <div><Brand /><p>Restoranların kolay yönettiği,<br />misafirlerin keyifle kullandığı menüler.</p></div>
       <div className={styles.footerLinks}><strong>Ürün</strong><a href="#ozellikler">Özellikler</a><a href="#nasil-calisir">Nasıl çalışır?</a><a href="#standlar">Stand ürünleri</a><a href="#referanslar">Referanslar</a></div>
       <div className={styles.footerLinks}><strong>Hızlı bağlantılar</strong><Link href="/deneme">Ücretsiz deneme</Link><Link href="/login">Panele giriş</Link><a href={contact} target="_blank" rel="noreferrer">WhatsApp</a></div>
-      <small>© {new Date().getFullYear()} QR Menülerim. Tüm hakları saklıdır. <span>Tasarım ve geliştirme</span> <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümit Can Çınar ↗</a></small>
+      <small>© {new Date().getFullYear()} QR Menülerim. Tüm hakları saklıdır. <span>Tasarım ve geliştirme</span> <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümican Çınar ↗</a></small>
     </footer>
 
     <div className={styles.mobileCtaBar}><Link href="/deneme">24 saat ücretsiz deneyin</Link><a href={contact} target="_blank" rel="noreferrer" aria-label="WhatsApp’tan iletişime geçin">WhatsApp</a></div>

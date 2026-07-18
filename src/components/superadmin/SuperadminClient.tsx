@@ -226,7 +226,7 @@ export default function SuperadminClient({ initialTenants, initialStandProducts,
       <Link className="admin-logo" href="/"><span>QM</span><div><strong>qrmenülerim</strong><small>PLATFORM YÖNETİMİ</small></div></Link>
       <div className="admin-workspace"><span>YÖNETİM ALANI</span><strong>QR Menülerim merkezi</strong></div>
       <nav>{nav('overview', '⌂', 'Genel bakış')}{nav('customers', '◎', 'Müşteriler', tenants.length)}{nav('analytics', '↗', 'İçerik özeti')}{nav('stands', '▤', 'Stand ürünleri', standProducts.length)}{nav('api', '⌘', 'API bağlantıları')}{nav('settings', '⚙', 'Hesap ayarları')}</nav>
-      <div className="admin-sidebar-bottom"><button className="admin-account" onClick={() => switchView('settings')}><span>{username.slice(0, 1).toUpperCase()}</span><div><strong>{username}</strong><small>Superadmin</small></div></button><button className="logout-action" onClick={logout}>Çıkış yap <span>↗</span></button><a className="panel-signature" href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümit Can Çınar tarafından geliştirildi ↗</a></div>
+      <div className="admin-sidebar-bottom"><button className="admin-account" onClick={() => switchView('settings')}><span>{username.slice(0, 1).toUpperCase()}</span><div><strong>{username}</strong><small>Superadmin</small></div></button><button className="logout-action" onClick={logout}>Çıkış yap <span>↗</span></button><a className="panel-signature" href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümican Çınar tarafından geliştirildi ↗</a></div>
     </aside>
 
     <section className="admin-main">

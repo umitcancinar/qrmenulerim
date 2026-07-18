@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   title: { default: 'QR Menülerim — Restoran ve kafeler için kolay QR menü', template: '%s · QR Menülerim' },
   description: 'Fiyatları, ürünleri ve görselleri tek panelden güncelleyin. Misafirleriniz uygulama indirmeden hızlı ve anlaşılır menünüze ulaşsın.',
   keywords: ['QR menü', 'dijital menü', 'restoran menüsü', 'online menü', 'QR Menülerim'],
-  authors: [{ name: 'Ümit Can Çınar', url: 'https://umitcancinar.me' }],
-  creator: 'Ümit Can Çınar',
+  authors: [{ name: 'Ümican Çınar', url: 'https://umitcancinar.me' }],
+  creator: 'Ümican Çınar',
   alternates: { canonical: '/' },
   openGraph: {
     type: 'website', locale: 'tr_TR', siteName: 'QR Menülerim',

@@ -43,7 +43,7 @@ export default function LoginPage() {
         <button className="button button-primary submit-wide" disabled={loading}>{loading ? 'Giriş yapılıyor…' : 'Giriş yap'} <span>↗</span></button>
         <div className="login-help"><span>Hesabınız yok mu? <Link href="/deneme">24 saat ücretsiz deneyin</Link></span><a href={whatsappUrl('Merhaba, QR Menülerim panel girişim için desteğe ihtiyacım var.')} target="_blank" rel="noreferrer">Giriş desteği ↗</a></div>
       </form>
-      <footer className="global-signature">Tasarım ve geliştirme <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümit Can Çınar ↗</a></footer>
+      <footer className="global-signature">Tasarım ve geliştirme <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümican Çınar ↗</a></footer>
     </section>
   </main>;
 }

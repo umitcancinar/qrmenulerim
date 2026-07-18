@@ -250,7 +250,7 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
           <div className={styles.footerBrand}><span>{menu.logoText}</span><div><strong>{menu.name}</strong><small>{menu.eyebrow}</small></div></div>
           <p>{menu.description}</p>
           <div className={styles.footerLinks}>{menu.phone && <a href={`tel:${menu.phone}`}><Icon name="phone" /> Ara</a>}<a href={`https://instagram.com/${menu.instagram.replace('@', '')}`} target="_blank" rel="noreferrer"><Icon name="instagram" /> {menu.instagram}</a></div>
-          <small>Menü deneyimi <b>qrmenulerim</b> ile hazırlandı · Tasarım ve geliştirme <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümit Can Çınar ↗</a></small>
+          <small>Menü deneyimi <b>qrmenulerim</b> ile hazırlandı · Tasarım ve geliştirme <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümican Çınar ↗</a></small>
         </footer>
       </div>
 

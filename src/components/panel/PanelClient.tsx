@@ -272,7 +272,7 @@ export default function PanelClient({
         <div className="avatar">{user.username.slice(0, 1).toUpperCase()}</div><div><strong>{user.username}</strong><span>Hesabım · Ayarlar</span></div>
       </button>
       <button className="logout-action" onClick={logout}>⇥ Çıkış yap</button>
-      <a className="panel-signature" href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümit Can Çınar tarafından geliştirildi ↗</a>
+      <a className="panel-signature" href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümican Çınar tarafından geliştirildi ↗</a>
     </aside>
     <section className="panel-main">
       <header className="panel-top">

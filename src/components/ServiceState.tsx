@@ -38,6 +38,6 @@ export default function ServiceState({
       </div>
       <small>Destek hattı · {CONTACT_PHONE_DISPLAY}</small>
     </section>
-    <footer className="global-signature">Tasarlayan ve geliştiren <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümit Can Çınar ↗</a></footer>
+    <footer className="global-signature">Tasarlayan ve geliştiren <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümican Çınar ↗</a></footer>
   </main>;
 }

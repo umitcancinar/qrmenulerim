@@ -279,7 +279,7 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
               {!!selected.portions?.length && <div className={styles.portions}><label>Porsiyon seçimi</label>{selected.portions.map((portion) => <button key={portion.id} className={selectedPortion === portion.id ? styles.activePortion : ''} onClick={() => setSelectedPortion(portion.id)}><span>{portion.label}</span><strong>{money(portion.price)}</strong></button>)}</div>}
               <div className={styles.ingredients}><label>İçindekiler</label><div>{selected.ingredients.map((ingredient) => <span key={ingredient}>{ingredient}</span>)}</div></div>
               {!!selected.allergens.length && <div className={styles.allergy}><Icon name="info" /><span><strong>Alerjen bilgisi</strong>{selected.allergens.join(' · ')}</span></div>}
-              <div className={styles.modalFooter}><div><small>Fiyat</small><strong>{money(displayedPrice)}</strong></div><button onClick={() => setToast(`${selected.name} seçimini garsona gösterebilirsin`)}>Garsona göster</button></div>
+              <div className={styles.modalFooter}><div><small>Fiyat</small><strong>{money(displayedPrice)}</strong></div></div>
             </div>
           </article>
         </div>

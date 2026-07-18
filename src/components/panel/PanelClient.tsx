@@ -2,6 +2,7 @@
 
 import { FormEvent, useEffect, useMemo, useRef, useState } from 'react';
 import { PERSONAL_SITE } from '@/lib/platform';
+import { Icon, type IconName } from '@/components/menu/Icons';
 
 type Product = {
   id: string;
@@ -249,9 +250,9 @@ export default function PanelClient({
     window.location.assign('/login');
   };
 
-  const nav = (key: Tab, icon: string, label: string, count?: number) => (
+  const nav = (key: Tab, icon: IconName, label: string, count?: number) => (
     <button type="button" className={tab === key ? 'selected' : ''} onClick={() => { setError(''); setTab(key); }}>
-      <span className="panel-nav-icon">{icon}</span><span>{label}</span>{typeof count === 'number' && <b>{count}</b>}
+      <span className="panel-nav-icon"><Icon name={icon} /></span><span>{label}</span>{typeof count === 'number' && <b>{count}</b>}
     </button>
   );
 
@@ -260,13 +261,13 @@ export default function PanelClient({
       <div className="sa-logo"><div className="brand-mark">QM</div><span>qrmenülerim<sup>®</sup></span></div>
       <div className="panel-restaurant"><div>{tenant.name.slice(0, 1)}</div><span><strong>{tenant.name}</strong><small>İşletme paneli</small></span></div>
       <nav aria-label="Panel bölümleri">
-        {nav('menu', '▦', 'Menü içerikleri', productTotal)}
-        {nav('appearance', '◉', 'Görünüm ve tema')}
-        {nav('integration', '⌘', 'API bağlantısı')}
-        {nav('analytics', '⌁', 'İçerik özeti')}
-        {nav('account', '⚙', 'Hesap ayarları')}
+        {nav('menu', 'grid', 'Menü içerikleri', productTotal)}
+        {nav('appearance', 'palette', 'Görünüm ve tema')}
+        {nav('integration', 'link', 'API bağlantısı')}
+        {nav('analytics', 'chart', 'İçerik özeti')}
+        {nav('account', 'settings', 'Hesap ayarları')}
       </nav>
-      <div className="panel-sidebar-status"><i /><span><strong>Menünüz yayında</strong><small>Son değişiklikler anında görünür</small></span></div>
+      <div className="panel-sidebar-status"><i><Icon name="check" /></i><span><strong>Menünüz yayında</strong><small>Son değişiklikler anında görünür</small></span></div>
       <button className={`sa-bottom account-card ${tab === 'account' ? 'is-active' : ''}`} onClick={() => setTab('account')}>
         <div className="avatar">{user.username.slice(0, 1).toUpperCase()}</div><div><strong>{user.username}</strong><span>Hesabım · Ayarlar</span></div>
       </button>
@@ -276,39 +277,40 @@ export default function PanelClient({
     <section className="panel-main">
       <header className="panel-top">
         <div><span className="eyebrow">{header.eyebrow}</span><h1>{tab === 'menu' ? tenant.name : header.title}</h1><p>{header.copy}</p></div>
-        <div className="panel-top-actions"><span className="panel-live-state"><i /> CANLI MENÜ</span><a className="preview-link" href={`/${tenant.slug}`} target="_blank" rel="noreferrer">Menüyü görüntüle ↗</a></div>
+        <div className="panel-top-actions"><span className="panel-live-state"><i /> CANLI MENÜ</span><a className="preview-link" href={`/${tenant.slug}`} target="_blank" rel="noreferrer"><span>Menüyü görüntüle</span><Icon name="external" /></a></div>
       </header>
       {tenant.status === 'TRIAL' && tenant.trialEndsAt && <div className="trial-banner"><span>24 SAATLİK TAM DENEME</span><p>Tüm özellikler açık · Süre bitişi <strong>{new Intl.DateTimeFormat('tr-TR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(tenant.trialEndsAt))}</strong></p><a href="https://wa.me/905541563862?text=Merhaba%2C%20deneme%20hesab%C4%B1m%C4%B1%20aktif%20etmek%20istiyorum." target="_blank" rel="noreferrer">Hesabı aktifleştir ↗</a></div>}
       {notice && <div className="admin-toast"><span>✓</span>{notice}</div>}
 
       {tab === 'menu' && <>
         <section className="panel-overview" aria-label="Menü özeti">
-          <article className="panel-overview-live"><span>Yayın durumu</span><strong><i /> Canlı</strong><small>Menünüz misafirlere açık</small></article>
-          <article><span>Kategoriler</span><strong>{categories.length}</strong><small>Menü bölümü</small></article>
-          <article><span>Satıştaki ürünler</span><strong>{availableProductTotal}<em> / {productTotal}</em></strong><small>Şu anda siparişe açık</small></article>
-          <article><span>Hazırlık puanı</span><strong>{healthScore}<em>/100</em></strong><small>{healthScore === 100 ? 'Tüm temel bilgiler hazır' : 'Geliştirilecek alanlar var'}</small></article>
+          <article className="panel-overview-live"><div className="panel-stat-head"><span>Yayın durumu</span><Icon name="check" /></div><strong><i /> Canlı</strong><small>Menünüz misafirlere açık</small></article>
+          <article><div className="panel-stat-head"><span>Kategoriler</span><Icon name="folder" /></div><strong>{categories.length}</strong><small>Menü bölümü</small></article>
+          <article><div className="panel-stat-head"><span>Satıştaki ürünler</span><Icon name="grid" /></div><strong>{availableProductTotal}<em> / {productTotal}</em></strong><small>Şu anda menüde görünür</small></article>
+          <article><div className="panel-stat-head"><span>Hazırlık puanı</span><Icon name="sparkles" /></div><strong>{healthScore}<em>/100</em></strong><small>{healthScore === 100 ? 'Tüm temel bilgiler hazır' : 'Geliştirilecek alanlar var'}</small></article>
         </section>
         <section className="panel-toolbar">
           <div><span className="eyebrow">İÇERİK KÜTÜPHANESİ</span><h2>Kategoriler ve ürünler</h2><p>Kategoriyi seçin; ürünleri düzenleyin veya tek dokunuşla yayından kaldırın.</p></div>
-          <div><button className="secondary-action" onClick={() => { setError(''); setModal({ type: 'category' }); }}>＋ Kategori oluştur</button><button className="primary-action" onClick={() => { if (!active) return setError('Önce bir kategori oluşturun.'); setError(''); setModal({ type: 'product' }); }}>＋ Yeni ürün</button></div>
+          <div><button className="secondary-action" onClick={() => { setError(''); setModal({ type: 'category' }); }}><Icon name="plus" /> Kategori oluştur</button><button className="primary-action" onClick={() => { if (!active) return setError('Önce bir kategori oluşturun.'); setError(''); setModal({ type: 'product' }); }}><Icon name="plus" /> Yeni ürün</button></div>
         </section>
         {error && <div className="form-error">{error}</div>}
         <div className="category-layout">
           <aside className="category-list" aria-label="Menü kategorileri">
             <header><span>KATEGORİLER</span><b>{categories.length}</b></header>
             {categories.map((item) => <button key={item.id} className={item.id === active ? 'category-row active' : 'category-row'} onClick={() => setActive(item.id)}><span>{item.name.slice(0, 1)}</span><strong>{item.name}<small>{item.products.length} ürün</small></strong><i>›</i></button>)}
-            {!categories.length && <div className="table-empty"><strong>Henüz kategori yok</strong><span>Menünüzü düzenlemek için ilk kategorinizi oluşturun.</span><button className="row-action" onClick={() => setModal({ type: 'category' })}>Kategori oluştur</button></div>}
+            {!categories.length && <div className="table-empty"><strong>Henüz kategori yok</strong><span>Menünüzü düzenlemek için ilk kategorinizi oluşturun.</span><button className="row-action" onClick={() => setModal({ type: 'category' })}><Icon name="plus" /> Kategori oluştur</button></div>}
           </aside>
           <section className="product-list">
-            <header><div><span className="eyebrow">SEÇİLİ KATEGORİ</span><h2>{category?.name || 'Henüz kategori yok'}</h2>{category?.description && <p>{category.description}</p>}</div>{category && <div><button className="row-action" onClick={() => setModal({ type: 'category', entity: category })}>Kategoriyi düzenle</button><button className="row-action row-action-danger" onClick={() => remove('categories', category.id)}>Sil</button></div>}</header>
+            <header><div><span className="eyebrow">SEÇİLİ KATEGORİ</span><h2>{category?.name || 'Henüz kategori yok'}</h2>{category?.description && <p>{category.description}</p>}</div>{category && <div><button className="row-action" onClick={() => setModal({ type: 'category', entity: category })}><Icon name="edit" /> Kategoriyi düzenle</button><button className="row-action row-action-danger" onClick={() => remove('categories', category.id)}><Icon name="trash" /> Sil</button></div>}</header>
+            {category && <div className="product-table-head"><span>Ürün</span><span>Hazırlık</span><span>Fiyat</span><span>İşlemler</span></div>}
             {category?.products.map((product) => <article className={`product-row ${product.isAvailable ? '' : 'is-unavailable'}`} key={product.id}>
               <div className="panel-product-image" style={product.imageUrl ? { backgroundImage: `url(${product.imageUrl})` } : undefined}>{product.imageUrl ? '' : '✦'}</div>
               <div className="product-row-copy"><span className={`product-state ${product.isAvailable ? 'is-live' : ''}`}>{product.isAvailable ? 'Satışta' : 'Kapalı'}</span><strong>{product.name}</strong><p>{product.description || 'Açıklama eklenmemiş.'}</p></div>
               <span className="product-time">{product.preparationMin ? `◷ ${product.preparationMin} dk` : 'Süre yok'}</span>
               <strong className="product-price">₺{Number(product.price).toLocaleString('tr-TR')}</strong>
-              <span className="product-actions"><button className="row-action" disabled={saving} onClick={() => toggleAvailability(product)}>{product.isAvailable ? 'Yayından kaldır' : 'Yayına al'}</button><button className="row-action" onClick={() => setModal({ type: 'product', entity: product })}>Düzenle</button><button className="row-action row-action-danger" onClick={() => remove('products', product.id)}>Sil</button></span>
+              <span className="product-actions"><button className="row-action product-publish-action" disabled={saving} onClick={() => toggleAvailability(product)}><Icon name={product.isAvailable ? 'pause' : 'play'} />{product.isAvailable ? 'Yayından kaldır' : 'Yayına al'}</button><button className="row-action" onClick={() => setModal({ type: 'product', entity: product })}><Icon name="edit" /> Düzenle</button><button className="row-action row-action-danger" onClick={() => remove('products', product.id)}><Icon name="trash" /> Sil</button></span>
             </article>)}
-            {category && !category.products.length && <div className="empty-panel"><strong>Bu kategori henüz boş</strong><span>Misafirlerinizin görebileceği ilk ürünü ekleyin.</span><button className="primary-action" onClick={() => setModal({ type: 'product' })}>＋ İlk ürünü ekle</button></div>}
+            {category && !category.products.length && <div className="empty-panel"><strong>Bu kategori henüz boş</strong><span>Misafirlerinizin görebileceği ilk ürünü ekleyin.</span><button className="primary-action" onClick={() => setModal({ type: 'product' })}><Icon name="plus" /> İlk ürünü ekle</button></div>}
           </section>
         </div>
       </>}

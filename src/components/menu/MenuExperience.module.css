@@ -35,3 +35,6 @@
 }
 
 @media(max-width:370px){.hero{min-height:720px}.heroCopy h1{font-size:38px}.productModal{grid-template-rows:minmax(190px,32%) minmax(0,1fr)}}
+
+/* The detail card itself is the presentation surface; price stays informational. */
+.modalFooter{justify-content:flex-start}.modalFooter>div{width:100%;flex-direction:row;align-items:baseline;justify-content:space-between}.modalFooter small{font-weight:800;letter-spacing:.8px;text-transform:uppercase}.modalFooter strong{font-family:'Bricolage Grotesque','Manrope',sans-serif}

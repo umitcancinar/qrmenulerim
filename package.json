@@ -14,7 +14,7 @@
     "db:sync-mira": "tsx prisma/sync-mira.ts"
   },
   "dependencies": {
-    "@prisma/client": "^6.3.0",
+    "@prisma/client": "^6.19.3",
     "bcryptjs": "^2.4.3",
     "jose": "^5.9.6",
     "next": "^16.2.4",
@@ -26,8 +26,11 @@
     "@types/node": "^22.10.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.2.4",
     "prisma": "^6.3.0",
     "tsx": "^4.19.3",
     "typescript": "^5.7.0"
-  }
+  },
+  "overrides": { "postcss": "^8.5.10" }
 }

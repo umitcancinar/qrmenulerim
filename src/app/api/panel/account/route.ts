@@ -4,7 +4,7 @@ import { db } from '@/lib/db';
 import { createSessionToken, hashPassword } from '@/lib/auth';
 import { currentSession, unauthorized } from '@/lib/guards';
 
-const updateSchema = z.object({ username: z.string().min(3).max(40).regex(/^[a-zA-Z0-9_.-]+$/).optional(), displayName: z.string().min(2).max(80).optional(), password: z.string().min(8).max(128).optional() });
+const updateSchema = z.object({ username: z.string().trim().toLowerCase().min(3).max(40).regex(/^[a-z0-9_.-]+$/).optional(), displayName: z.string().trim().min(2).max(80).optional(), password: z.string().min(8).max(128).optional() });
 
 export async function PATCH(request: Request) {
   const session = await currentSession();

@@ -1,6 +1,7 @@
 'use client';
 
 import { FormEvent, useMemo, useState } from 'react';
+import { PERSONAL_SITE } from '@/lib/platform';
 
 type Product = {
   id: string;
@@ -21,6 +22,8 @@ type Category = { id: string; name: string; description: string | null; imageUrl
 type Tenant = {
   name: string;
   slug: string;
+  status: 'ACTIVE' | 'TRIAL';
+  trialEndsAt: string | null;
   logoUrl: string | null;
   description: string | null;
   coverUrl: string | null;
@@ -59,10 +62,15 @@ export default function PanelClient({
   const [tab, setTab] = useState<Tab>('menu');
   const [error, setError] = useState('');
   const [saving, setSaving] = useState(false);
+  const [notice, setNotice] = useState('');
   const category = categories.find((item) => item.id === active);
   const productTotal = useMemo(() => categories.reduce((sum, item) => sum + item.products.length, 0), [categories]);
   const settings = tenant.settings || {};
   const header = headers[tab];
+  const allProducts = categories.flatMap((item) => item.products);
+  const healthChecks = [Boolean(tenant.coverUrl), Boolean(tenant.description), Boolean(tenant.phone), Boolean(tenant.address), categories.length > 0, productTotal >= 3];
+  const healthScore = Math.round(healthChecks.filter(Boolean).length / healthChecks.length * 100);
+  const flash = (message: string) => { setNotice(message); window.setTimeout(() => setNotice(''), 2400); };
 
   async function saveMenu(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -104,6 +112,7 @@ export default function PanelClient({
       } : item));
     }
     setModal(null);
+    flash(modal.entity ? 'Değişiklikler menüye yansıdı.' : 'Yeni içerik menüye eklendi.');
   }
 
   async function remove(type: 'categories' | 'products', id: string) {
@@ -117,6 +126,7 @@ export default function PanelClient({
     } else {
       setCategories((items) => items.map((item) => ({ ...item, products: item.products.filter((product) => product.id !== id) })));
     }
+    flash('İçerik menüden kaldırıldı.');
   }
 
   async function saveTenant(event: FormEvent<HTMLFormElement>) {
@@ -134,6 +144,7 @@ export default function PanelClient({
     setSaving(false);
     if (!response.ok) return setError('İşletme bilgileri kaydedilemedi.');
     setTenant((current) => ({ ...current, ...payload.data }));
+    flash('Marka görünümü güncellendi.');
   }
 
   async function saveAccount(event: FormEvent<HTMLFormElement>) {
@@ -151,6 +162,7 @@ export default function PanelClient({
     setSaving(false);
     if (!response.ok) return setError(payload.error === 'USERNAME_ALREADY_USED' ? 'Bu kullanıcı adı kullanımda.' : 'Hesap bilgileri kaydedilemedi.');
     setUser({ username: payload.data.username, displayName: payload.data.displayName });
+    flash('Hesap bilgileri güncellendi.');
   }
 
   const logout = async () => {
@@ -171,20 +183,23 @@ export default function PanelClient({
         <div className="avatar">{user.username.slice(0, 1).toUpperCase()}</div><div><strong>{user.username}</strong><span>Hesabım · Ayarlar</span></div>
       </button>
       <button className="logout-action" onClick={logout}>⇥ Çıkış yap</button>
+      <a className="panel-signature" href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümit Can Çınar tarafından geliştirildi ↗</a>
     </aside>
     <section className="panel-main">
       <header className="panel-top">
         <div><span className="eyebrow">{header.eyebrow}</span><h1>{tab === 'menu' ? tenant.name : header.title}</h1><p>{header.copy}</p></div>
         <a className="preview-link" href={`/${tenant.slug}`} target="_blank">Menüyü görüntüle ↗</a>
       </header>
+      {tenant.status === 'TRIAL' && tenant.trialEndsAt && <div className="trial-banner"><span>24 SAATLİK TAM DENEME</span><p>Tüm özellikler açık · Süre bitişi <strong>{new Intl.DateTimeFormat('tr-TR', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(tenant.trialEndsAt))}</strong></p><a href="https://wa.me/905541563862?text=Merhaba%2C%20deneme%20hesab%C4%B1m%C4%B1%20aktif%20etmek%20istiyorum." target="_blank" rel="noreferrer">Hesabı aktifleştir ↗</a></div>}
+      {notice && <div className="admin-toast"><span>✓</span>{notice}</div>}
 
-      {tab === 'menu' && <><section className="panel-toolbar"><div><span className="eyebrow">İÇERİK KÜTÜPHANESİ</span><h2>Kategoriler ve ürünler</h2></div><div><button className="secondary-action" onClick={() => { setError(''); setModal({ type: 'category' }); }}>＋ Kategori</button><button className="primary-action" onClick={() => { if (!active) return setError('Önce bir kategori oluşturun.'); setError(''); setModal({ type: 'product' }); }}>＋ Ürün ekle</button></div></section>{error && <div className="form-error">{error}</div>}<div className="category-layout"><aside className="category-list">{categories.map((item) => <button key={item.id} className={item.id === active ? 'category-row active' : 'category-row'} onClick={() => setActive(item.id)}><span>{item.name.slice(0, 1)}</span><strong>{item.name}<small>{item.products.length} ürün</small></strong><i>›</i></button>)}{!categories.length && <p className="table-empty">İlk kategorinizi oluşturun.</p>}</aside><section className="product-list"><header><div><span className="eyebrow">SEÇİLİ KATEGORİ</span><h2>{category?.name || 'Henüz kategori yok'}</h2></div>{category && <div><button className="row-action" onClick={() => setModal({ type: 'category', entity: category })}>Düzenle</button><button className="row-action" onClick={() => remove('categories', category.id)}>Sil</button></div>}</header>{category?.products.map((product) => <article className="product-row" key={product.id}><div className="panel-product-image">✦</div><div className="product-row-copy"><strong>{product.name}</strong><p>{product.description || 'Açıklama eklenmemiş.'}</p></div><span className="product-time">{product.preparationMin ? `◷ ${product.preparationMin} dk` : '—'}</span><strong className="product-price">₺{Number(product.price).toLocaleString('tr-TR')}</strong><span><button className="row-action" onClick={() => setModal({ type: 'product', entity: product })}>Düzenle</button><button className="row-action" onClick={() => remove('products', product.id)}>Sil</button></span></article>)}{category && !category.products.length && <div className="empty-panel">Bu kategoride henüz ürün yok.</div>}</section></div></>}
+      {tab === 'menu' && <><section className="panel-toolbar"><div><span className="eyebrow">İÇERİK KÜTÜPHANESİ</span><h2>Kategoriler ve ürünler</h2></div><div><button className="secondary-action" onClick={() => { setError(''); setModal({ type: 'category' }); }}>＋ Kategori</button><button className="primary-action" onClick={() => { if (!active) return setError('Önce bir kategori oluşturun.'); setError(''); setModal({ type: 'product' }); }}>＋ Ürün ekle</button></div></section>{error && <div className="form-error">{error}</div>}<div className="category-layout"><aside className="category-list">{categories.map((item) => <button key={item.id} className={item.id === active ? 'category-row active' : 'category-row'} onClick={() => setActive(item.id)}><span>{item.name.slice(0, 1)}</span><strong>{item.name}<small>{item.products.length} ürün</small></strong><i>›</i></button>)}{!categories.length && <p className="table-empty">İlk kategorinizi oluşturun.</p>}</aside><section className="product-list"><header><div><span className="eyebrow">SEÇİLİ KATEGORİ</span><h2>{category?.name || 'Henüz kategori yok'}</h2></div>{category && <div><button className="row-action" onClick={() => setModal({ type: 'category', entity: category })}>Düzenle</button><button className="row-action" onClick={() => remove('categories', category.id)}>Sil</button></div>}</header>{category?.products.map((product) => <article className="product-row" key={product.id}><div className="panel-product-image" style={product.imageUrl ? { backgroundImage: `url(${product.imageUrl})` } : undefined}>{product.imageUrl ? '' : '✦'}</div><div className="product-row-copy"><strong>{product.name}</strong><p>{product.description || 'Açıklama eklenmemiş.'}</p></div><span className="product-time">{product.preparationMin ? `◷ ${product.preparationMin} dk` : '—'}</span><strong className="product-price">₺{Number(product.price).toLocaleString('tr-TR')}</strong><span><button className="row-action" onClick={() => setModal({ type: 'product', entity: product })}>Düzenle</button><button className="row-action" onClick={() => remove('products', product.id)}>Sil</button></span></article>)}{category && !category.products.length && <div className="empty-panel">Bu kategoride henüz ürün yok.</div>}</section></div></>}
 
       {tab === 'appearance' && <form className="tenant-section" onSubmit={saveTenant}><span className="eyebrow">İŞLETME BİLGİLERİ</span><h2>QR menü görünümü</h2><div className="form-grid"><label className="wide">Kısa açıklama<textarea name="description" defaultValue={tenant.description || ''} /></label><label className="wide">Kapak görseli URL<input name="coverUrl" type="url" defaultValue={tenant.coverUrl || ''} placeholder="https://…" /></label><label>Adres<input name="address" defaultValue={tenant.address || ''} /></label><label>Telefon<input name="phone" defaultValue={tenant.phone || ''} /></label><label>Üst başlık<input name="eyebrow" defaultValue={String(settings.eyebrow || '')} /></label><label>Instagram<input name="instagram" defaultValue={String(settings.instagram || '')} /></label><label>Karşılama başlığı<input name="tagline" defaultValue={String(settings.tagline || '')} /></label><label>Servis saatleri<input name="openingHours" defaultValue={String(settings.openingHours || '')} /></label><label>Ortalama bekleme<input name="averageWait" defaultValue={String(settings.averageWait || '')} /></label><label className="wide">Duyuru metni<input name="announcement" defaultValue={String(settings.announcement || '')} /></label></div>{error && <div className="form-error">{error}</div>}<footer><button className="primary-action" disabled={saving}>{saving ? 'Kaydediliyor…' : 'Görünümü kaydet'}</button></footer></form>}
 
       {tab === 'integration' && <form className="tenant-section" onSubmit={saveTenant}><span className="eyebrow">HARİCİ MENÜ KAYNAĞI</span><h2>Menü API bağlantısı</h2><div className="form-grid"><label className="wide">Menü API URL<input name="menuApiUrl" type="url" defaultValue={String(settings.menuApiUrl || '')} placeholder="https://api.ornek.com/api/public/menu/{{slug}}" /><small>REST OTM için tam uç noktayı yaz. {'{{slug}}'} işletme koduna dönüşür; MİRA için mira olarak çağrılır.</small></label><input type="hidden" name="menuApiEnabled" value="off" /><label className="wide"><input name="menuApiEnabled" type="checkbox" defaultChecked={settings.menuApiEnabled === true} /> Bu müşterinin QR menüsünü harici API&apos;den çek</label><div className="integration-note wide"><strong>Aktif olduğunda</strong><span>Kategoriler, ürünler, fiyatlar, görseller, hazırlık süresi, rozetler ve porsiyonlar QR menüde bu linkten canlı okunur. API yanıt vermezse sistem kayıtlı menüye geri döner.</span></div><div className="integration-note wide"><strong>API girilmezse</strong><span>Manuel eklenen kategori ve ürünler aynı eski sistem gibi görünmeye devam eder.</span></div><div className="integration-note wide"><strong>Beklenen format</strong><span>REST OTM uyumlu cevapta data.categories ve her kategori içinde items dizisi olmalı.</span></div></div>{error && <div className="form-error">{error}</div>}<footer><button className="primary-action" disabled={saving}>{saving ? 'Kaydediliyor…' : 'API bağlantısını kaydet'}</button></footer></form>}
 
-      {tab === 'analytics' && <section className="sa-stats"><div><span>Toplam kategori</span><strong>{categories.length}</strong><small>Menünde listelenen gruplar</small></div><div><span>Toplam ürün</span><strong>{productTotal}</strong><small>QR menüdeki içerikler</small></div><div><span>Öne çıkan</span><strong>{categories.flatMap((item) => item.products).filter((product) => product.isFeatured).length}</strong><small>Şefin seçkisi alanında</small></div></section>}
+      {tab === 'analytics' && <><section className="sa-stats"><div><span>Toplam kategori</span><strong>{categories.length}</strong><small>Menünde listelenen gruplar</small></div><div><span>Toplam ürün</span><strong>{productTotal}</strong><small>QR menüdeki içerikler</small></div><div><span>Öne çıkan</span><strong>{allProducts.filter((product) => product.isFeatured).length}</strong><small>Şefin seçkisi alanında</small></div></section><section className="menu-health"><div className="health-score"><strong>{healthScore}<small>/100</small></strong><span>Menü sağlık puanı</span></div><div><span className="eyebrow">YAYINA HAZIRLIK</span><h2>Daha güçlü bir menü için</h2><ul><li className={tenant.coverUrl ? 'done' : ''}>Kapak görseli</li><li className={tenant.description ? 'done' : ''}>İşletme açıklaması</li><li className={tenant.phone && tenant.address ? 'done' : ''}>İletişim bilgileri</li><li className={productTotal >= 3 ? 'done' : ''}>En az 3 ürün</li></ul></div></section></>}
       {tab === 'account' && <form className="tenant-section" onSubmit={saveAccount}><span className="eyebrow">GİRİŞ BİLGİLERİ</span><h2>Hesabım</h2><div className="form-grid"><label>Görünen ad<input name="displayName" required defaultValue={user.displayName} /></label><label>Kullanıcı adı<input name="username" required defaultValue={user.username} /></label><label className="wide">Yeni şifre <input name="password" type="password" minLength={8} placeholder="Değiştirmeyeceksen boş bırak" /></label></div>{error && <div className="form-error">{error}</div>}<footer><button className="primary-action" disabled={saving}>{saving ? 'Kaydediliyor…' : 'Hesabı kaydet'}</button></footer></form>}
     </section>
     {modal && <div className="sa-modal-backdrop" onClick={() => setModal(null)}><form className="tenant-modal" onSubmit={saveMenu} onClick={(event) => event.stopPropagation()}><button type="button" className="modal-close" onClick={() => setModal(null)}>×</button><span className="eyebrow">{modal.type === 'category' ? 'KATEGORİ' : 'ÜRÜN'} {modal.entity ? 'DÜZENLE' : 'EKLE'}</span><h2>{modal.entity ? 'Bilgileri güncelle' : modal.type === 'category' ? 'Kategori oluştur' : 'Ürününü ekle'}</h2><div className="form-grid">{modal.type === 'category' ? <><label className="wide">Kategori adı<input name="name" required defaultValue={(modal.entity as Category | undefined)?.name || ''} /></label><label className="wide">Kısa açıklama<input name="description" defaultValue={(modal.entity as Category | undefined)?.description || ''} /></label><label className="wide">Görsel URL<input name="imageUrl" type="url" defaultValue={(modal.entity as Category | undefined)?.imageUrl || ''} placeholder="https://…" /></label></> : <><label>Ürün adı<input name="name" required defaultValue={(modal.entity as Product | undefined)?.name || ''} /></label><label>Fiyat (₺)<input name="price" type="number" min="0" step="0.01" required defaultValue={(modal.entity as Product | undefined)?.price || ''} /></label><label className="wide">Açıklama<input name="description" defaultValue={(modal.entity as Product | undefined)?.description || ''} /></label><label className="wide">Ürün görseli URL<input name="imageUrl" type="url" defaultValue={(modal.entity as Product | undefined)?.imageUrl || ''} placeholder="https://…" /></label><label>Hazırlık (dk)<input name="preparationMin" type="number" min="0" defaultValue={(modal.entity as Product | undefined)?.preparationMin || ''} /></label><label>Kalori<input name="calories" type="number" min="0" defaultValue={(modal.entity as Product | undefined)?.calories || ''} /></label><label>Vurgu rozeti<input name="kicker" defaultValue={(modal.entity as Product | undefined)?.kicker || ''} placeholder="Örn. ŞEFİN SEÇİMİ" /></label><label>Rozetler<input name="badges" defaultValue={(modal.entity as Product | undefined)?.badges?.join(', ') || ''} placeholder="vegan, popular" /></label><label className="wide">İçindekiler<input name="ingredients" defaultValue={(modal.entity as Product | undefined)?.ingredients?.join(', ') || ''} placeholder="Nohut, tahin, limon" /></label><label className="wide">Alerjenler<input name="allergens" defaultValue={(modal.entity as Product | undefined)?.allergens?.join(', ') || ''} placeholder="Gluten, süt" /></label><label className="wide"><input name="isFeatured" type="checkbox" defaultChecked={(modal.entity as Product | undefined)?.isFeatured} /> Şefin seçkisinde göster</label></>}</div>{error && <div className="form-error">{error}</div>}<footer><button type="button" className="secondary-action" onClick={() => setModal(null)}>Vazgeç</button><button className="primary-action" disabled={saving}>{saving ? 'Kaydediliyor…' : 'Kaydet'}</button></footer></form></div>}

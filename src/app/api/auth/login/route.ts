@@ -3,7 +3,7 @@ import { z } from 'zod';
 import { db } from '@/lib/db';
 import { createSessionToken, verifyPassword } from '@/lib/auth';
 
-const loginSchema = z.object({ username: z.string().min(3).max(40), password: z.string().min(8).max(128) });
+const loginSchema = z.object({ username: z.string().trim().toLowerCase().min(3).max(40), password: z.string().min(8).max(128) });
 
 export async function POST(request: Request) {
   const body = loginSchema.safeParse(await request.json());

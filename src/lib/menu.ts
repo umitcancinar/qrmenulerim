@@ -1,4 +1,5 @@
 import { db } from '@/lib/db';
+import { tenantLifecycleBySlug } from '@/lib/lifecycle';
 import type { DietTag, RestaurantMenu } from '@/components/menu/types';
 
 const fallbackCover = 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1800&q=88';
@@ -69,8 +70,10 @@ function normalizeTags(badges: string[]): DietTag[] {
 }
 
 export async function getPublicMenu(slug: string) {
+  const access = await tenantLifecycleBySlug(slug);
+  if (!access || !['ACTIVE', 'TRIAL_ACTIVE'].includes(access.lifecycle)) return null;
   const tenant = await db.tenant.findFirst({
-    where: { slug, status: { in: ['ACTIVE', 'TRIAL'] } },
+    where: { id: access.tenant.id },
     select: {
       name: true, slug: true, logoUrl: true, coverUrl: true, description: true, phone: true, address: true, theme: true, settings: true,
       categories: {

@@ -20,25 +20,30 @@ enum TenantStatus {
 }
 
 model Tenant {
-  id          String       @id @default(cuid())
-  name        String
-  slug        String       @unique
-  status      TenantStatus @default(TRIAL)
-  logoUrl     String?
-  coverUrl    String?
-  phone       String?
-  address     String?
-  description String?
-  theme       Json         @default("{}")
-  settings    Json         @default("{}")
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
+  id                  String       @id @default(cuid())
+  name                String
+  slug                String       @unique
+  status              TenantStatus @default(TRIAL)
+  logoUrl             String?
+  coverUrl            String?
+  phone               String?
+  address             String?
+  description         String?
+  theme               Json         @default("{}")
+  settings            Json         @default("{}")
+  trialStartedAt      DateTime?
+  trialEndsAt         DateTime?
+  scheduledDeletionAt DateTime?
+  suspendedAt         DateTime?
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
 
   users      User[]
   categories MenuCategory[]
   products   Product[]
 
   @@index([status])
+  @@index([status, scheduledDeletionAt])
 }
 
 model User {
@@ -58,15 +63,15 @@ model User {
 }
 
 model MenuCategory {
-  id        String   @id @default(cuid())
-  tenantId  String
-  name      String
+  id          String   @id @default(cuid())
+  tenantId    String
+  name        String
   description String?
-  imageUrl  String?
-  sortOrder Int      @default(0)
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  imageUrl    String?
+  sortOrder   Int      @default(0)
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   tenant   Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   products Product[]
@@ -75,25 +80,25 @@ model MenuCategory {
 }
 
 model Product {
-  id            String   @id @default(cuid())
-  tenantId      String
-  categoryId    String
-  name          String
-  description   String?
-  imageUrl      String?
-  kicker        String?
-  price         Decimal  @db.Decimal(10, 2)
+  id             String   @id @default(cuid())
+  tenantId       String
+  categoryId     String
+  name           String
+  description    String?
+  imageUrl       String?
+  kicker         String?
+  price          Decimal  @db.Decimal(10, 2)
   preparationMin Int?
-  calories      Int?
-  badges        Json     @default("[]")
-  allergens     Json     @default("[]")
-  ingredients   Json     @default("[]")
-  portions      Json     @default("[]")
-  isAvailable   Boolean  @default(true)
-  isFeatured    Boolean  @default(false)
-  sortOrder     Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  calories       Int?
+  badges         Json     @default("[]")
+  allergens      Json     @default("[]")
+  ingredients    Json     @default("[]")
+  portions       Json     @default("[]")
+  isAvailable    Boolean  @default(true)
+  isFeatured     Boolean  @default(false)
+  sortOrder      Int      @default(0)
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
   tenant   Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   category MenuCategory @relation(fields: [categoryId], references: [id], onDelete: Cascade)

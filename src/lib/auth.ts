@@ -8,7 +8,11 @@ export type Session = {
   username: string;
 };
 
-const secret = new TextEncoder().encode(process.env.AUTH_SECRET || 'development-secret-change-before-deploy');
+const configuredSecret = process.env.AUTH_SECRET;
+if (process.env.NODE_ENV === 'production' && (!configuredSecret || configuredSecret.length < 32)) {
+  throw new Error('AUTH_SECRET must contain at least 32 characters in production.');
+}
+const secret = new TextEncoder().encode(configuredSecret || 'development-only-secret-change-before-deploy');
 
 export const hashPassword = (password: string) => bcrypt.hash(password, 12);
 export const verifyPassword = (password: string, hash: string) => bcrypt.compare(password, hash);

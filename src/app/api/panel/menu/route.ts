@@ -1,21 +1,20 @@
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { db } from '@/lib/db';
-import { currentSession, unauthorized } from '@/lib/guards';
+import { editableTenantSession, unauthorized } from '@/lib/guards';
 
 const categorySchema = z.object({ name: z.string().min(2).max(80), description: z.string().max(240).optional(), imageUrl: z.string().url().optional().or(z.literal('')) });
 const productSchema = z.object({ categoryId: z.string().min(1), name: z.string().min(2).max(100), description: z.string().max(500).optional(), imageUrl: z.string().url().optional().or(z.literal('')), kicker: z.string().max(40).optional(), price: z.coerce.number().min(0).max(999999), preparationMin: z.coerce.number().int().min(0).max(999).optional(), calories: z.coerce.number().int().min(0).max(9999).optional(), badges: z.array(z.string().max(30)).max(6).optional(), allergens: z.array(z.string().max(40)).max(12).optional(), ingredients: z.array(z.string().max(50)).max(20).optional(), isFeatured: z.boolean().optional() });
 
-async function tenantSession() { const session = await currentSession(); return session && session.tenantId && ['OWNER', 'MANAGER'].includes(session.role) ? session : null; }
-
 export async function GET() {
-  const session = await tenantSession(); if (!session) return unauthorized();
-  const categories = await db.menuCategory.findMany({ where: { tenantId: session.tenantId! }, orderBy: { sortOrder: 'asc' }, include: { products: { orderBy: { sortOrder: 'asc' } } } });
+  const context = await editableTenantSession(); if (!context) return unauthorized();
+  const categories = await db.menuCategory.findMany({ where: { tenantId: context.session.tenantId! }, orderBy: { sortOrder: 'asc' }, include: { products: { orderBy: { sortOrder: 'asc' } } } });
   return NextResponse.json({ data: categories });
 }
 
 export async function POST(request: Request) {
-  const session = await tenantSession(); if (!session) return unauthorized();
+  const context = await editableTenantSession(); if (!context) return unauthorized();
+  const session = context.session;
   const body = await request.json();
   if (body.type === 'category') {
     const parsed = categorySchema.safeParse(body); if (!parsed.success) return NextResponse.json({ error: 'INVALID_INPUT' }, { status: 400 });

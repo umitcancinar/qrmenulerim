@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Icon } from './Icons';
 import type { DietTag, MenuProduct, RestaurantMenu } from './types';
 import styles from './MenuExperience.module.css';
+import { PERSONAL_SITE } from '@/lib/platform';
 
 const money = (price: number) => new Intl.NumberFormat('tr-TR', {
   style: 'currency', currency: 'TRY', maximumFractionDigits: 0,
@@ -32,22 +33,21 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
   const [toast, setToast] = useState('');
 
   useEffect(() => {
-    const storedTheme = window.localStorage.getItem('qm-theme');
-    const storedFavorites = window.localStorage.getItem('qm-favorites');
-    if (storedTheme === 'dark') setTheme('dark');
-    if (storedFavorites) {
-      try { setFavorites(JSON.parse(storedFavorites)); } catch { /* Bozuk yerel veriyi yok say. */ }
-    }
+    const frame = window.requestAnimationFrame(() => {
+      const storedTheme = window.localStorage.getItem('qm-theme');
+      const storedFavorites = window.localStorage.getItem('qm-favorites');
+      if (storedTheme === 'dark') setTheme('dark');
+      if (storedFavorites) {
+        try { setFavorites(JSON.parse(storedFavorites)); } catch { /* Bozuk yerel veriyi yok say. */ }
+      }
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(() => {
     document.body.style.overflow = selected || infoOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [selected, infoOpen]);
-
-  useEffect(() => {
-    setSelectedPortion(selected?.portions?.[0]?.id ?? '');
-  }, [selected]);
 
   useEffect(() => {
     if (!toast) return;
@@ -153,7 +153,7 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
         </header>
 
         <div className={styles.announcement}>
-          <span>BUGÜN MİRA'DA</span><p>{menu.announcement}</p><button onClick={() => chooseCategory('favorites')}>Keşfet <Icon name="chevron" /></button>
+          <span>BUGÜN</span><p>{menu.announcement}</p><button onClick={() => chooseCategory('favorites')}>Keşfet <Icon name="chevron" /></button>
         </div>
 
         <section className={styles.content}>
@@ -198,7 +198,7 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
             <div className={`${styles.productGrid} ${layout === 'list' ? styles.listLayout : ''}`}>
               {visibleProducts.map((product, index) => (
                 <article className={styles.productCard} key={product.id} style={{ '--delay': `${Math.min(index * 45, 300)}ms` } as React.CSSProperties}>
-                  <button className={styles.cardMain} onClick={() => setSelected(product)} aria-label={`${product.name} detaylarını aç`}>
+                  <button className={styles.cardMain} onClick={() => { setSelected(product); setSelectedPortion(product.portions?.[0]?.id ?? ''); }} aria-label={`${product.name} detaylarını aç`}>
                     <div className={styles.productImage} style={{ backgroundImage: `url(${product.imageUrl})` }}>
                       <div className={styles.imageShade} />
                       {product.kicker && <span className={styles.kicker}>{product.kicker}</span>}
@@ -234,9 +234,9 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
 
         <footer className={styles.footer}>
           <div className={styles.footerBrand}><span>{menu.logoText}</span><div><strong>{menu.name}</strong><small>{menu.eyebrow}</small></div></div>
-          <p>İyi ürün, açık ateş ve uzun sofralar.</p>
-          <div className={styles.footerLinks}><a href={`tel:${menu.phone}`}><Icon name="phone" /> Ara</a><a href="#" onClick={(event) => event.preventDefault()}><Icon name="instagram" /> {menu.instagram}</a></div>
-          <small>Menü deneyimi <b>qrmenulerim</b> ile hazırlandı.</small>
+          <p>{menu.description}</p>
+          <div className={styles.footerLinks}>{menu.phone && <a href={`tel:${menu.phone}`}><Icon name="phone" /> Ara</a>}<a href={`https://instagram.com/${menu.instagram.replace('@', '')}`} target="_blank" rel="noreferrer"><Icon name="instagram" /> {menu.instagram}</a></div>
+          <small>Menü deneyimi <b>qrmenulerim</b> ile hazırlandı · Tasarım ve geliştirme <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümit Can Çınar ↗</a></small>
         </footer>
       </div>
 

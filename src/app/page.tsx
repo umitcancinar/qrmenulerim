@@ -228,6 +228,23 @@ export default async function HomePage() {
       <small>© {new Date().getFullYear()} QR Menülerim. Tüm hakları saklıdır. <span>Tasarım ve geliştirme</span> <a href={PERSONAL_SITE} target="_blank" rel="noreferrer">Ümican Çınar ↗</a></small>
     </footer>
 
+    <a
+      className={styles.floatingWhatsapp}
+      href={contact}
+      target="_blank"
+      rel="noreferrer"
+      aria-label="WhatsApp üzerinden QR Menü hakkında bilgi alın"
+    >
+      <span className={styles.floatingWhatsappIcon} aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M20 11.6a8 8 0 0 1-11.8 7L4 20l1.4-4A8 8 0 1 1 20 11.6Z" />
+          <path d="M8.2 7.7c.2-.4.5-.4.8-.4h.3c.2 0 .4.1.5.4l.8 1.8c.1.3.1.5-.1.7l-.6.8c-.2.2-.2.4-.1.6.6 1.2 1.6 2.2 2.9 2.8.2.1.4.1.6-.1l.9-1.1c.2-.2.4-.3.7-.1l1.8.8c.3.1.4.3.4.5 0 .4-.2 1.4-.8 1.9-.5.5-1.3.8-2.1.7-1.1-.1-2.8-.7-4.7-2.4-2.3-2-3.1-4.4-3.2-5.4 0-.6.1-1.1.4-1.5Z" />
+        </svg>
+      </span>
+      <span className={styles.floatingWhatsappCopy}><small>WHATSAPP</small><strong>Bilgi alın</strong></span>
+      <span className={styles.floatingWhatsappArrow} aria-hidden="true">↗</span>
+    </a>
+
     <div className={styles.mobileCtaBar}><Link href="/deneme">24 saat ücretsiz deneyin</Link><a href={contact} target="_blank" rel="noreferrer" aria-label="WhatsApp’tan iletişime geçin">WhatsApp</a></div>
   </main>;
 }

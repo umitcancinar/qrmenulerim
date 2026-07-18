@@ -1,8 +1,9 @@
 import type { Metadata, Viewport } from 'next';
+import { appUrl } from '@/lib/app-url';
 import './globals.css';
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://qrmenulerim.store'),
+  metadataBase: new URL(appUrl),
   title: { default: 'QR Menülerim — Menü değil, marka deneyimi', template: '%s · QR Menülerim' },
   description: 'Restoranınız için hızlı, zarif ve satışa odaklı dijital QR menü. 24 saat boyunca tüm özellikleri ücretsiz deneyin.',
   keywords: ['QR menü', 'dijital menü', 'restoran menüsü', 'online menü', 'QR Menülerim'],

@@ -1,8 +1,9 @@
 import type { MetadataRoute } from 'next';
+import { appUrl } from '@/lib/app-url';
 import { db } from '@/lib/db';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const base = process.env.NEXT_PUBLIC_APP_URL || 'https://qrmenulerim.store';
+  const base = appUrl;
   const fixed: MetadataRoute.Sitemap = [
     { url: base, changeFrequency: 'weekly', priority: 1 },
     { url: `${base}/deneme`, changeFrequency: 'monthly', priority: .9 },

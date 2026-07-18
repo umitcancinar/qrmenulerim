@@ -28,7 +28,7 @@ export default function LoginPage() {
   return <main className="login-page">
     <section className="login-showcase">
       <Link className="landing-brand light-brand" href="/"><span>QM</span><div><strong>qrmenülerim</strong><small>DİJİTAL MENÜ SİSTEMİ</small></div></Link>
-      <div className="login-copy"><span className="hero-kicker"><i /> İŞLETME YÖNETİM PANELİ</span><h1>Menünüzü<br /><em>tek yerden yönetin.</em></h1><p>Ürünleri, fiyatları ve işletme görünümünü kolayca güncelleyin. Kaydettiğiniz değişiklikler canlı menünüze anında yansısın.</p></div>
+      <div className="login-copy"><span className="hero-kicker">İŞLETME YÖNETİM PANELİ</span><h1>Menünüzü tek yerden yönetin.</h1><p>Ürünleri, fiyatları ve işletme görünümünü kolayca güncelleyin. Kaydettiğiniz değişiklikler doğrudan canlı menünüzde görünsün.</p></div>
       <div className="login-dashboard-preview"><header><span>İÇERİK DURUMU</span><i>● YAYINDA</i></header><strong>Menünüz kullanıma hazır</strong><div><span><b>14</b><small>Ürün</small></span><span><b>5</b><small>Kategori</small></span><span><b>Anlık</b><small>Güncelleme</small></span></div></div>
     </section>
     <section className="login-form-side">

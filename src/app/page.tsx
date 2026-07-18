@@ -17,6 +17,7 @@ type Reference = {
 };
 
 const fallbackCover = 'https://images.unsplash.com/photo-1515003197210-e0cd71810b5f?auto=format&fit=crop&w=1800&q=88';
+const mobileHeroCover = '/hero-mobile.jpg';
 const foodOne = 'https://images.unsplash.com/photo-1577805947697-89e18249d767?auto=format&fit=crop&w=700&q=86';
 const foodTwo = 'https://images.unsplash.com/photo-1544025162-d76694265947?auto=format&fit=crop&w=700&q=86';
 
@@ -79,21 +80,23 @@ export default async function HomePage() {
     <section className={styles.hero}>
       <div className={styles.heroGrid} />
       <div className={styles.heroCopy}>
-        <span className={styles.kicker}><i /> Restoranlar için yeni nesil dijital menü</span>
-        <h1>Menünüz,<br /><em>markanız kadar iyi</em><br />görünsün.</h1>
-        <p>Ürünlerinizi, fiyatlarınızı ve görsellerinizi tek panelden yönetin. Misafirleriniz hızlı, anlaşılır ve her ekranda kusursuz çalışan bir menüyle buluşsun.</p>
+        <span className={styles.kicker}>Restoranlar ve kafeler için QR menü</span>
+        <div className={styles.mobileHeroImage} aria-hidden="true" style={{ backgroundImage: `linear-gradient(180deg,rgba(4,5,4,.08),rgba(4,5,4,.18) 32%,rgba(4,5,4,.58) 60%,#050605 84%,#000 100%),url(${mobileHeroCover})` }} />
+        <h1>Menünüz her masada <span>güncel</span>.</h1>
+        <p>Fiyatı değiştirin, yeni ürünü ekleyin, kaydedin. Misafirleriniz uygulama indirmeden hızlı ve anlaşılır bir menüye ulaşsın.</p>
+        <dl className={styles.heroMetrics} aria-label="QR Menü avantajları">
+          <div><dt>5 dk</dt><dd>İlk menüyü yayınlayın</dd></div>
+          <div><dt>Anlık</dt><dd>Fiyatları güncelleyin</dd></div>
+          <div><dt>0</dt><dd>Uygulama indirme</dd></div>
+        </dl>
         <div className={styles.heroActions}>
-          <Link className={styles.primaryButton} href="/deneme">24 saat ücretsiz deneyin <span>↗</span></Link>
-          <Link className={styles.secondaryButton} href={exampleUrl}><span className={styles.play}>▶</span> Örnek menüyü inceleyin</Link>
+          <Link className={styles.primaryButton} href="/deneme">Menünüzü ücretsiz oluşturun <span>↗</span></Link>
+          <Link className={styles.secondaryButton} href={exampleUrl}><span className={styles.play}>▶</span> Canlı örneği açın</Link>
         </div>
-        <ul className={styles.heroTrust} aria-label="Deneme avantajları">
-          <li><span>✓</span>Kredi kartı gerekmez</li>
-          <li><span>✓</span>Tüm özellikler açık</li>
-          <li><span>✓</span>Dakikalar içinde hazır</li>
-        </ul>
+        <a className={styles.scrollHint} href="#canli-onizleme">Canlı menü önizlemesi aşağıda <span>↓</span></a>
       </div>
 
-      <div className={styles.heroVisual} aria-label="Canlı QR menü önizlemesi">
+      <div className={styles.heroVisual} id="canli-onizleme" aria-label="Canlı QR menü önizlemesi">
         <div className={styles.visualHalo} />
         <div className={styles.syncNote}><span>● CANLI</span><strong>Panelde değiştirin</strong><small>Menüde anında yayınlansın</small></div>
         <div className={styles.deviceNote}><strong>Her ekrana hazır</strong><small>Telefon · Tablet · Masaüstü</small></div>
@@ -114,29 +117,29 @@ export default async function HomePage() {
     </section>
 
     <section className={styles.promiseBar} aria-label="Platform özellikleri">
-      <span><i>01</i> Mobil öncelikli tasarım</span>
-      <span><i>02</i> Anlık içerik güncelleme</span>
-      <span><i>03</i> Markaya özel görünüm</span>
-      <span><i>04</i> Güvenli yönetim paneli</span>
+      <span><i>01</i><b>Her telefonda rahat kullanım</b></span>
+      <span><i>02</i><b>Fiyat ve ürünler anında güncel</b></span>
+      <span><i>03</i><b>İşletmenize özel görünüm</b></span>
+      <span><i>04</i><b>Güvenli yönetim paneli</b></span>
     </section>
 
     <section className={styles.features} id="ozellikler">
       <header className={styles.sectionHeading}>
-        <div><span className={styles.sectionKicker}>MENÜNÜZÜN YENİ STANDARDI</span><h2>Misafir için zahmetsiz.<br /><em>İşletmeniz için güçlü.</em></h2></div>
-        <p>Güzel görünen bir menü yetmez. Aranan ürün kolay bulunmalı, fiyatlar güncel kalmalı ve her işlem işletme için anlaşılır olmalı.</p>
+        <div><span className={styles.sectionKicker}>KOLAY KULLANILAN, KOLAY YÖNETİLEN</span><h2>Misafir rahat kullanır.<br /><span>Siz kolay yönetirsiniz.</span></h2></div>
+        <p>Misafiriniz aradığını hızlıca bulur. Siz de ürünleri, fiyatları ve görselleri tek bir panelden rahatça güncellersiniz.</p>
       </header>
 
       <div className={styles.featureGrid}>
         <article className={styles.featureLead}>
           <span className={styles.cardNumber}>01</span>
-          <div><span className={styles.sectionKicker}>MİSAFİR DENEYİMİ</span><h3>Aradığını saniyeler içinde bulan misafirler.</h3><p>Akıllı arama, kategori geçişleri, beslenme tercihleri, alerjen bilgileri ve favoriler; tek, anlaşılır bir akışta.</p></div>
+          <div><span className={styles.sectionKicker}>MİSAFİR DENEYİMİ</span><h3>Misafiriniz aradığını kolayca bulur.</h3><p>Arama, kategoriler, beslenme tercihleri, alerjen bilgileri ve favoriler aynı sade akışta çalışır.</p></div>
           <div className={styles.searchCard}><span>⌕</span><p><small>MENÜDE ARAMA</small><strong>“glutensiz”</strong><em>3 uygun ürün bulundu</em></p><b>→</b></div>
         </article>
 
         <article className={styles.featureManage}>
           <span className={styles.cardNumber}>02</span>
           <span className={styles.sectionKicker}>KOLAY YÖNETİM</span>
-          <h3>Fiyatı değiştirin.<br />Menü anında güncellensin.</h3>
+          <h3>Fiyatı değiştirin,<br />kaydedin. Hepsi bu.</h3>
           <div className={styles.editRows}>
             <span><i className={styles.liveDot} /><p><strong>Köz patlıcan</strong><small>Yayında</small></p><b>₺245</b></span>
             <span><i className={styles.liveDot} /><p><strong>İmza tabağı</strong><small>Az önce güncellendi</small></p><b>₺395</b></span>
@@ -147,13 +150,13 @@ export default async function HomePage() {
         <article className={styles.featureBrand}>
           <span className={styles.cardNumber}>03</span>
           <span className={styles.sectionKicker}>MARKANIZA ÖZEL</span>
-          <h3>Hazır şablon gibi değil, işletmeniz gibi görünür.</h3>
+          <h3>Menünüz işletmenizin kimliğini taşır.</h3>
           <p>Kapak görseli, renkler, metinler, duyurular ve menü düzeni markanızın karakteriyle uyumlu çalışır.</p>
           <div className={styles.palette}><span /><span /><span /><span /><b>Aa</b></div>
         </article>
 
         <article className={styles.featureSecure}>
-          <div><span className={styles.sectionKicker}>GÜVENLİ VE ESNEK ALTYAPI</span><h3>Bugün için hızlı.<br />Yarın için hazır.</h3><p>Güvenli hesaplar, yayın durumu yönetimi, otomatik deneme takibi ve isterseniz mevcut sisteminizle API bağlantısı.</p></div>
+          <div><span className={styles.sectionKicker}>GÜVENLİ VE ESNEK ALTYAPI</span><h3>Menünüz açık,<br />kontrol sizde.</h3><p>Güvenli hesaplar, yayın durumu yönetimi, otomatik deneme takibi ve isterseniz mevcut sisteminizle API bağlantısı.</p></div>
           <ul><li><span>✓</span>Rol tabanlı güvenli erişim</li><li><span>✓</span>Askıya alma ve deneme yönetimi</li><li><span>✓</span>API ile canlı veri desteği</li><li><span>✓</span>Arıza durumunda kayıtlı menüye dönüş</li></ul>
         </article>
       </div>

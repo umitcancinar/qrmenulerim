@@ -105,3 +105,21 @@ model Product {
 
   @@index([tenantId, categoryId, sortOrder])
 }
+
+model StandProduct {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  material    String
+  dimensions  String
+  imageUrl    String?
+  visualStyle String   @default("obsidian")
+  price       Decimal? @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([isActive, sortOrder])
+}

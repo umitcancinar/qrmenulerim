@@ -115,10 +115,10 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
   };
 
   const displayedPrice = selected?.portions?.find((portion) => portion.id === selectedPortion)?.price ?? selected?.price ?? 0;
-  const sectionTitle = query ? 'Arama sonuçları' : favoriteView ? 'Favori lezzetlerin' : activeCategoryData?.name;
+  const sectionTitle = query ? 'Arama sonuçları' : favoriteView ? 'Favorileriniz' : activeCategoryData?.name;
   const sectionDescription = query
     ? `“${query}” için eşleşen tabaklar`
-    : favoriteView ? 'Daha sonra kolayca bulmak için kaydettiklerin' : activeCategoryData?.description;
+    : favoriteView ? 'Daha sonra kolayca bulmak için kaydettiğiniz ürünler' : activeCategoryData?.description;
 
   return (
     <main className={`${styles.page} ${theme === 'dark' ? styles.dark : ''}`}>
@@ -142,7 +142,7 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
             <h1>{menu.tagline}</h1>
             <p>{menu.description}</p>
             <div className={styles.heroMeta}>
-              <span className={styles.open}><i /> Şimdi açık</span>
+              <span className={styles.open}><i /> Servis saatleri</span>
               <span><Icon name="clock" /> {menu.openingHours}</span>
               <span><Icon name="star" /> {menu.rating} <small>({menu.reviewCount})</small></span>
             </div>
@@ -153,7 +153,7 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
         </header>
 
         <div className={styles.announcement}>
-          <span>BUGÜN</span><p>{menu.announcement}</p><button onClick={() => chooseCategory('favorites')}>Keşfet <Icon name="chevron" /></button>
+          <span>DUYURU</span><p>{menu.announcement}</p><button onClick={() => chooseCategory('favorites')}>Öne çıkanlar <Icon name="chevron" /></button>
         </div>
 
         <section className={styles.content}>
@@ -224,8 +224,8 @@ export default function MenuExperience({ menu }: { menu: RestaurantMenu }) {
             {!visibleProducts.length && (
               <div className={styles.emptyState}>
                 <div><Icon name="search" /></div>
-                <h3>{favoriteView ? 'Henüz favorin yok' : 'Bu seçimde ürün bulamadık'}</h3>
-                <p>{favoriteView ? 'Beğendiğin ürünlerdeki kalbe dokun; burada senin için saklayalım.' : 'Filtreleri temizleyebilir veya başka bir arama deneyebilirsin.'}</p>
+                <h3>{favoriteView ? 'Henüz favoriniz yok' : 'Bu seçimde ürün bulunamadı'}</h3>
+                <p>{favoriteView ? 'Beğendiğiniz ürünlerdeki kalp simgesine dokunun; sizin için burada saklayalım.' : 'Filtreleri temizleyebilir veya farklı bir arama yapabilirsiniz.'}</p>
                 {!favoriteView && <button onClick={() => { setQuery(''); setFilters([]); }}>Tümünü göster</button>}
               </div>
             )}

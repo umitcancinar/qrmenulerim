@@ -4,11 +4,15 @@ import { currentSession } from '@/lib/guards';
 import SuperadminClient from '@/components/superadmin/SuperadminClient';
 import { reapExpiredTrials } from '@/lib/lifecycle';
 import { safeTenantInclude } from '@/lib/tenant-create';
+import { ensureDefaultStandProducts } from '@/lib/stand-products';
 
 export default async function SuperadminPage() {
   const session = await currentSession();
   if (!session || session.role !== 'SUPERADMIN') redirect('/login');
-  await reapExpiredTrials();
-  const tenants = await db.tenant.findMany({ orderBy: { createdAt: 'desc' }, include: safeTenantInclude });
-  return <SuperadminClient initialTenants={JSON.parse(JSON.stringify(tenants))} username={session.username} />;
+  await Promise.all([reapExpiredTrials(), ensureDefaultStandProducts()]);
+  const [tenants, stands] = await Promise.all([
+    db.tenant.findMany({ orderBy: { createdAt: 'desc' }, include: safeTenantInclude }),
+    db.standProduct.findMany({ orderBy: [{ sortOrder: 'asc' }, { createdAt: 'asc' }] }),
+  ]);
+  return <SuperadminClient initialTenants={JSON.parse(JSON.stringify(tenants))} initialStandProducts={JSON.parse(JSON.stringify(stands))} username={session.username} />;
 }

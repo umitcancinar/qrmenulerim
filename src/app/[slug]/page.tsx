@@ -16,7 +16,7 @@ export default async function PublicMenuPage({ params }: { params: Promise<{ slu
     return <ServiceState kind="TRIAL_EXPIRED" businessName={access.tenant.name} deletionAt={lifecycleDates(access.tenant).scheduledDeletionAt} />;
   }
   if (access.lifecycle === 'DELETED') return <ServiceState kind="DELETED" businessName={access.tenant.name} />;
-  const menu = await getPublicMenu(slug);
+  const menu = await getPublicMenu(slug, access.tenant.id);
   if (!menu) notFound();
   return <MenuExperience menu={menu} />;
 }

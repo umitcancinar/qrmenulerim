@@ -1,6 +1,7 @@
 import { db } from '@/lib/db';
 import { tenantLifecycleBySlug } from '@/lib/lifecycle';
 import type { DietTag, RestaurantMenu } from '@/components/menu/types';
+import { externalCategoryItems, inspectExternalMenuSource, type ExternalMenuCategory } from '@/lib/external-menu';
 
 const fallbackCover = 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=1800&q=88';
 const categoryIcons = ['◌', '♨', '△', '◇', '◒', '✦'];
@@ -16,33 +17,17 @@ type StoredTenant = {
   settings: unknown; categories: StoredCategory[];
 };
 
-type ExternalMenuItem = Record<string, unknown>;
-type ExternalMenuCategory = Record<string, unknown>;
-
-function safeExternalUrl(value: unknown, slug: string) {
-  if (typeof value !== 'string' || !value.trim()) return null;
-  try {
-    const candidate = value.replaceAll('{{slug}}', encodeURIComponent(slug));
-    const url = new URL(candidate);
-    const hostname = url.hostname.toLowerCase();
-    if (!['http:', 'https:'].includes(url.protocol) || hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1' || hostname.endsWith('.local')) return null;
-    return url.toString();
-  } catch { return null; }
-}
-
-function externalPayload(payload: unknown) {
-  if (!payload || typeof payload !== 'object') return null;
-  const root = payload as Record<string, unknown>;
-  const data = root.data && typeof root.data === 'object' ? root.data as Record<string, unknown> : root;
-  return Array.isArray(data.categories) ? data : null;
-}
-
 function asString(value: unknown, fallback = '') {
   return typeof value === 'string' && value.trim() ? value : fallback;
 }
 
 function asNumber(value: unknown, fallback: number) {
-  return typeof value === 'number' && Number.isFinite(value) ? value : fallback;
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && /^-?\d+(?:[.,]\d+)?$/.test(value.trim())) {
+    const parsed = Number(value.trim().replace(',', '.'));
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return fallback;
 }
 
 function asStrings(value: unknown) {
@@ -69,11 +54,15 @@ function normalizeTags(badges: string[]): DietTag[] {
   return [...new Set(badges.map((badge) => lookup[badge.toLocaleLowerCase('tr-TR').trim()]).filter((tag): tag is DietTag => Boolean(tag)))];
 }
 
-export async function getPublicMenu(slug: string) {
-  const access = await tenantLifecycleBySlug(slug);
-  if (!access || !['ACTIVE', 'TRIAL_ACTIVE'].includes(access.lifecycle)) return null;
+export async function getPublicMenu(slug: string, verifiedTenantId?: string) {
+  let tenantId = verifiedTenantId;
+  if (!tenantId) {
+    const access = await tenantLifecycleBySlug(slug);
+    if (!access || !['ACTIVE', 'TRIAL_ACTIVE'].includes(access.lifecycle)) return null;
+    tenantId = access.tenant.id;
+  }
   const tenant = await db.tenant.findFirst({
-    where: { id: access.tenant.id },
+    where: { id: tenantId },
     select: {
       name: true, slug: true, logoUrl: true, coverUrl: true, description: true, phone: true, address: true, theme: true, settings: true,
       categories: {
@@ -93,22 +82,19 @@ export async function getPublicMenu(slug: string) {
 
   const storedTenant = tenant as unknown as StoredTenant;
   const settings = (storedTenant.settings && typeof storedTenant.settings === 'object' && !Array.isArray(storedTenant.settings)) ? storedTenant.settings as Record<string, unknown> : {};
-  const externalUrl = settings.menuApiEnabled === true ? safeExternalUrl(settings.menuApiUrl, slug) : null;
-  if (externalUrl) {
+  if (settings.menuApiEnabled === true && settings.menuApiUrl) {
     try {
-      const response = await fetch(externalUrl, { cache: 'no-store', signal: AbortSignal.timeout(8000), headers: { Accept: 'application/json' } });
-      const external = response.ok ? externalPayload(await response.json()) : null;
-      if (external) {
-        const externalCategories = (external.categories as ExternalMenuCategory[]).map((category, index) => ({ id: asString(category.id, `external-category-${index}`), name: asString(category.name, `Kategori ${index + 1}`), description: asString(category.description, 'Özenle hazırlanan lezzetler'), icon: categoryIcons[index % categoryIcons.length] }));
-        const externalProducts = (external.categories as ExternalMenuCategory[]).flatMap((category, categoryIndex) => {
-          const categoryId = asString(category.id, `external-category-${categoryIndex}`); const items = Array.isArray(category.items) ? category.items as ExternalMenuItem[] : [];
-          return items.filter((item) => item.isActive !== false).map((item, itemIndex) => {
-            const price = asNumber(item.basePrice ?? item.price, 0); const portionOptions = Array.isArray(item.portionOptions) ? item.portionOptions : [];
-            return { id: asString(item.id, `external-item-${categoryIndex}-${itemIndex}`), categoryId, name: asString(item.name, 'İsimsiz ürün'), kicker: asString(item.badge) || undefined, description: asString(item.description, 'Açıklama yakında eklenecek.'), imageUrl: asString(item.image ?? item.imageUrl, fallbackCover), price, preparationMin: asNumber(item.preparationTime ?? item.preparationMin, 15), calories: asNumber(item.calories, 0) || undefined, tags: normalizeTags(asStrings(item.tags ?? item.badges ?? (item.badge ? [item.badge] : []))), allergens: asStrings(item.allergens), ingredients: asStrings(item.ingredients), portions: portionOptions.flatMap((portion, portionIndex) => { if (!portion || typeof portion !== 'object') return []; const value = portion as Record<string, unknown>; const label = asString(value.name ?? value.label); const override = asNumber(value.priceOverride, Number.NaN); const multiplier = asNumber(value.multiplier, 1); return label ? [{ id: asString(value.id, `portion-${portionIndex}`), label, price: Number.isFinite(override) ? override : price * multiplier }] : []; }), featured: item.isFeatured === true };
+      const { payload: external } = await inspectExternalMenuSource(settings.menuApiUrl, slug);
+      const externalCategories = (external.categories as ExternalMenuCategory[]).map((category, index) => ({ id: asString(category.id, `external-category-${index}`), name: asString(category.name, `Kategori ${index + 1}`), description: asString(category.description, 'Özenle hazırlanan lezzetler'), icon: asString(category.icon, categoryIcons[index % categoryIcons.length]) }));
+      const externalProducts = (external.categories as ExternalMenuCategory[]).flatMap((category, categoryIndex) => {
+          const categoryId = asString(category.id, `external-category-${categoryIndex}`); const items = externalCategoryItems(external, category);
+          return items.filter((item) => item.isActive !== false && item.isAvailable !== false).map((item, itemIndex) => {
+            const price = asNumber(item.basePrice ?? item.price, 0); const portionOptions = Array.isArray(item.portionOptions) ? item.portionOptions : Array.isArray(item.portions) ? item.portions : [];
+            return { id: asString(item.id, `external-item-${categoryIndex}-${itemIndex}`), categoryId, name: asString(item.name, 'İsimsiz ürün'), kicker: asString(item.badge ?? item.kicker) || undefined, description: asString(item.description, 'Açıklama yakında eklenecek.'), imageUrl: asString(item.image ?? item.imageUrl, fallbackCover), price, preparationMin: asNumber(item.preparationTime ?? item.preparationMin, 15), calories: asNumber(item.calories, 0) || undefined, tags: normalizeTags(asStrings(item.tags ?? item.badges ?? (item.badge ? [item.badge] : []))), allergens: asStrings(item.allergens), ingredients: asStrings(item.ingredients), portions: portionOptions.flatMap((portion, portionIndex) => { if (!portion || typeof portion !== 'object') return []; const value = portion as Record<string, unknown>; const label = asString(value.name ?? value.label); const directPrice = asNumber(value.price, Number.NaN); const override = asNumber(value.priceOverride, Number.NaN); const multiplier = asNumber(value.multiplier, 1); return label ? [{ id: asString(value.id, `portion-${portionIndex}`), label, price: Number.isFinite(directPrice) ? directPrice : Number.isFinite(override) ? override : price * multiplier }] : []; }), featured: item.isFeatured === true || item.featured === true };
           });
         });
-        return { name: asString(external.restaurantName, storedTenant.name), eyebrow: asString(settings.eyebrow, 'DİJİTAL MENÜ'), tagline: asString(settings.tagline, 'Lezzeti keşfet.'), description: storedTenant.description || 'Özenle seçilmiş lezzetlerimizi keşfedin.', logoText: asString(external.restaurantName, storedTenant.name).slice(0, 1).toLocaleUpperCase('tr-TR'), coverUrl: storedTenant.coverUrl || fallbackCover, address: storedTenant.address || 'Adres bilgisi yakında eklenecek.', phone: storedTenant.phone || '', instagram: asString(settings.instagram, '@qrmenulerim'), openingHours: asString(settings.openingHours, '12:00 – 00:00'), averageWait: asString(settings.averageWait, '15–25 dk'), rating: asNumber(settings.rating, 4.8), reviewCount: asNumber(settings.reviewCount, 0), announcement: asString(settings.announcement, 'Menümüz dış menü kaynağından güncel olarak getiriliyor.'), categories: [{ id: 'favorites', name: 'Şefin Seçkisi', icon: '✦', description: 'Mutfağın öne çıkan lezzetleri' }, ...externalCategories], products: externalProducts } satisfies RestaurantMenu;
-      }
+        const externalName = asString(external.restaurantName ?? external.name, storedTenant.name);
+        return { name: externalName, eyebrow: asString(settings.eyebrow, 'DİJİTAL MENÜ'), tagline: asString(settings.tagline, 'Lezzeti keşfet.'), description: storedTenant.description || asString(external.description, 'Özenle seçilmiş lezzetlerimizi keşfedin.'), logoText: externalName.slice(0, 1).toLocaleUpperCase('tr-TR'), coverUrl: asString(external.coverUrl, storedTenant.coverUrl || fallbackCover), address: storedTenant.address || asString(external.address, 'Adres bilgisi yakında eklenecek.'), phone: storedTenant.phone || asString(external.phone), instagram: asString(settings.instagram, asString(external.instagram, '@qrmenulerim')), openingHours: asString(settings.openingHours, asString(external.openingHours, '12:00 – 00:00')), averageWait: asString(settings.averageWait, asString(external.averageWait, '15–25 dk')), rating: asNumber(external.rating ?? settings.rating, 4.8), reviewCount: asNumber(external.reviewCount ?? settings.reviewCount, 0), announcement: asString(settings.announcement, asString(external.announcement, 'Menümüz dış menü kaynağından güncel olarak getiriliyor.')), categories: [{ id: 'favorites', name: 'Şefin Seçkisi', icon: '✦', description: 'Mutfağın öne çıkan lezzetleri' }, ...externalCategories.filter((category) => category.id !== 'favorites')], products: externalProducts } satisfies RestaurantMenu;
     } catch { /* Harici kaynak yanıt vermezse işletmenin kendi kayıtlı menüsüne geri dön. */ }
   }
   const categories = storedTenant.categories.map((category, index) => ({

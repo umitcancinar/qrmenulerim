@@ -50,7 +50,7 @@ export async function createTenantWithOwner(input: CreateTenantInput) {
 
     if (input.starterMenu !== false) {
       const categories = await Promise.all([
-        tx.menuCategory.create({ data: { tenantId: tenant.id, name: 'Başlangıçlar', description: 'Paylaşmalık ve iştah açan lezzetler', sortOrder: 1 } }),
+        tx.menuCategory.create({ data: { tenantId: tenant.id, name: 'Başlangıçlar', description: 'Paylaşıma uygun, iştah açan lezzetler', sortOrder: 1 } }),
         tx.menuCategory.create({ data: { tenantId: tenant.id, name: 'Ana Lezzetler', description: 'Mutfağın öne çıkan tabakları', sortOrder: 2 } }),
       ]);
       await tx.product.createMany({
